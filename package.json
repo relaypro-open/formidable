@@ -4,6 +4,7 @@
   "description": "Static site generator for dynamic content sources",
   "main": "formidable.js",
   "dependencies": {
+    "glob": "^4.0.5",
     "q": "~1.0.0"
   },
   "devDependencies": {},
