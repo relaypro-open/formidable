@@ -3,11 +3,6 @@
   "version": "0.0.0",
   "description": "Static site generator for dynamic content sources",
   "main": "formidable.js",
-  "dependencies": {
-    "glob": "^4.0.5",
-    "q": "~1.0.0"
-  },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -27,5 +22,13 @@
   "bugs": {
     "url": "https://github.com/Phonebooth/formidable/issues"
   },
-  "homepage": "https://github.com/Phonebooth/formidable"
+  "homepage": "https://github.com/Phonebooth/formidable",
+  "dependencies": {
+    "glob": "~4.0.0",
+    "q": "~1.0.0"
+  },
+  "optionalDependencies": {
+    "swig": "~1.4.0"
+  },
+  "devDependencies": {}
 }
