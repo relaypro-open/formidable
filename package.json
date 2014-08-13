@@ -27,10 +27,9 @@
   "dependencies": {
     "glob": "~4.0.0",
     "mercenary": "git+ssh://git@github.com:Phonebooth/mercenary.git#v0.1.0",
-    "q": "~1.0.0"
-  },
-  "optionalDependencies": {
+    "q": "~1.0.0",
     "swig": "~1.4.0"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "private": true
 }
