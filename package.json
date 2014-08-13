@@ -25,9 +25,11 @@
     "swig"
   ],
   "dependencies": {
+    "collections": "~1.2.0",
     "glob": "~4.0.0",
     "mercenary": "git+ssh://git@github.com:Phonebooth/mercenary.git#v0.1.0",
     "q": "~1.0.0",
+    "q-io": "~1.11.0",
     "swig": "~1.4.0"
   },
   "devDependencies": {},

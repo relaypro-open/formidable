@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO (mkibbel): Add a debug setting that will set q.longStackSupport === true.
+
 var //---------------
     //    Imports
     //---------------
@@ -73,7 +75,7 @@ var //---------------
                 });
                 return value;
             },
-            log = require('./lib/log')(option),
+            log = require('./lib/utils/log')(option),
             path = require('./lib/path')(option),
             urls = require('./lib/urls')(option, path),
             template = require('./lib/templating/' + (option('templating') || 'swig'))(option, path, urls),
