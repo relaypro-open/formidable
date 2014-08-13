@@ -76,7 +76,7 @@ var //---------------
             log = require('./lib/log')(option),
             path = require('./lib/path')(option),
             urls = require('./lib/urls')(option, path),
-            template = require('./lib/template/' + (option('templates') || 'swig'))(option, path),
+            template = require('./lib/template/' + (option('templates') || 'swig'))(option, path, urls),
             build = require('./lib/build')(option, log, path, urls, template);
 
         return extend(build, {
