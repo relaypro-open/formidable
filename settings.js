@@ -1,7 +1,5 @@
 'use strict';
 
-// TODO (mkibbel): Add a debug setting that will set q.longStackSupport === true.
-
 var //---------------
     //    Imports
     //---------------
@@ -81,6 +79,10 @@ var //---------------
             template = require('./lib/templating/' + (option('templating') || 'swig'))(option, path, urls),
             build = require('./lib/build')(option, log, path, urls, template);
 
+        if (option('debug')) {
+            // Debug promise resolution stacks.
+            q.longStackSupport === true;
+        }
         return extend(build, {
             q: q,
             path: path,
