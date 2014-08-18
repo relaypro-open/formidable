@@ -73,7 +73,8 @@ var //---------------
                 });
                 return value;
             },
-            log = require('./lib/utils/log')(option),
+            log = require('./lib/log')(option),
+            context = require('./lib/context')(option),
             path = require('./lib/path')(option),
             urls = require('./lib/urls')(option, path),
             template = require('./lib/templating/' + (option('templating') || 'swig'))(option, path, urls),
@@ -85,6 +86,7 @@ var //---------------
         }
         return extend(build, {
             q: q,
+            context: context,
             path: path,
             urls: urls,
             template: template
