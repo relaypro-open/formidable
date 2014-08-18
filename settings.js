@@ -78,7 +78,7 @@ var //---------------
             path = require('./lib/path')(option),
             urls = require('./lib/urls')(option, path),
             template = require('./lib/templating/' + (option('templating') || 'swig'))(option, path, urls),
-            build = require('./lib/build')(option, log, path, urls, template);
+            build = require('./lib/build')(option, log, context, path, urls, template);
 
         if (option('debug')) {
             // Debug promise resolution stacks.
