@@ -8,6 +8,7 @@ var //---------------
     q = require('q'),
     lang = require('mercenary').lang,
     partial = lang.partial,
+    slice = lang.slice,
     has = lang.has,
     all = lang.all,
     extend = lang.extend,
@@ -63,11 +64,11 @@ var //---------------
 
     // Instantiate a formidable instance from settings.
     instantiate = function(options) {
-        var // Resolve the value of a dotted-path option name.
-            option = function(name) {
+        var // Resolve the value of a nested object option name.
+            option = function() {
                 var value = options;
 
-                all(split(name || ''), function(key) {
+                all(slice(arguments), function(key) {
                     value = value && value[key];
                     return !isAbsent(value);
                 });
@@ -81,7 +82,6 @@ var //---------------
             build = require('./lib/build')(option, log, context, path, urls, template);
 
         if (option('debug')) {
-            // Debug promise resolution stacks.
             q.longStackSupport === true;
         }
         return extend(build, {
