@@ -10,6 +10,7 @@ var //---------------
     partial = lang.partial,
     slice = lang.slice,
     has = lang.has,
+    each = lang.each,
     all = lang.all,
     extend = lang.extend,
     split = lang.split,
@@ -26,8 +27,18 @@ var //---------------
     // The default formidable settings module file path.
     defaultPath = process.env.FORMIDABLE_SETTINGS_MODULE,
 
+    // Reset the require cache for the formidable convenience imports.
+    reset = function() {
+        var clear = function(name) {
+                delete require.cache[path.join(__dirname, name + '.js')];
+            };
+
+        each(['context', 'formidable', 'template', 'urls'], clear);
+    },
+
     // Configure the default settings module file path.
     configure = function(settingsPath) {
+        reset();
         defaultPath = path.resolve(settingsPath);
         return {
             load: partial(load, defaultPath)
@@ -48,12 +59,12 @@ var //---------------
             throw new Error(
                 'Either the FORMIDABLE_SETTINGS_MODULE environment variable ' +
                 'must be set to the settings module file path, or a path ' +
-                'must be passed to formidable/settings::load()');
+                'must be passed to formidable/settings.load()');
         }
         if (has(cache, normalPath) && settings) {
             throw new Error(
                 'A formidable instance for the settings module file path "' +
-                + normalPath +
+                normalPath +
                 '" already exists, so a new instance for the given settings ' +
                 'cannot be created.');
         }
@@ -98,6 +109,7 @@ var //---------------
 //------------------
 
 module.exports = {
+    reset: reset,
     configure: configure,
     load: load
 };
