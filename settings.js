@@ -5,17 +5,16 @@ var //---------------
     //---------------
 
     path = require('path'),
-    q = require('q'),
-    lang = require('mercenary').lang,
+    q = require('mercenary/promises').q,
+    lang = require('mercenary/lang'),
     partial = lang.partial,
-    slice = lang.slice,
     has = lang.has,
     each = lang.each,
-    all = lang.all,
     extend = lang.extend,
-    split = lang.split,
+    items = lang.items,
+    get = lang.get,
+    isArray = lang.is.array,
     isUndefined = lang.is.undef,
-    isAbsent = lang.is.absent,
 
     //----------------------
     //    Implementation
@@ -27,13 +26,12 @@ var //---------------
     // The default formidable settings module file path.
     defaultPath = process.env.FORMIDABLE_SETTINGS_MODULE,
 
-    // Reset the require cache for the formidable convenience imports.
+    // Reset the require() cache for formidable and for any js files resolved through path.js().
     reset = function() {
-        var clear = function(name) {
-                delete require.cache[path.join(__dirname, name + '.js')];
-            };
-
-        each(['context', 'formidable', 'template', 'urls'], clear);
+        delete require.cache[path.join(__dirname, 'formidable' + '.js')];
+        if (defaultPath && cache[defaultPath]) {
+            cache[defaultPath].path.js.clear();
+        }
     },
 
     // Configure the default settings module file path.
@@ -75,33 +73,46 @@ var //---------------
 
     // Instantiate a formidable instance from settings.
     instantiate = function(options) {
-        var // Resolve the value of a nested object option name.
-            option = function() {
-                var value = options;
-
-                all(slice(arguments), function(key) {
-                    value = value && value[key];
-                    return !isAbsent(value);
-                });
-                return value;
-            },
+        var option = partial(get, options),
             log = require('./lib/log')(option),
-            context = require('./lib/context')(option),
             path = require('./lib/path')(option),
+            context = require('./lib/context')(option),
+            middleware = require('./lib/middleware')(option),
             urls = require('./lib/urls')(option, path),
             template = require('./lib/templating/' + (option('templating') || 'swig'))(option, path, urls),
-            build = require('./lib/build')(option, log, context, path, urls, template);
+            build = require('./lib/build')(option, log, path, context, middleware, urls, template),
+            plugins = option('plugins') || [],
+            api = (
+                extend(build, {
+                    q: q,
+                    log: log,
+                    path: path,
+                    context: context,
+                    middleware: middleware,
+                    urls: urls,
+                    template: template,
+                    option: option
+                }));
 
-        if (option('debug')) {
-            q.longStackSupport === true;
-        }
-        return extend(build, {
-            q: q,
-            context: context,
-            path: path,
-            urls: urls,
-            template: template
+        // Load any plugins.
+        each(isArray(plugins) ? plugins : items(plugins), function(plugin) {
+            var mod = isArray(plugin) ? plugin[0] : plugin,
+                option = partial(get, (isArray(plugin) && plugin[1]) || {});
+
+            try {
+                require(mod)(api, option);
+            } catch (error) {
+                require(path.js.sync(mod))(api, option);
+            }
         });
+
+        // Debug?
+        if (option('debug')) {
+            q.longStackSupport = true;
+        }
+
+        // Return the API.
+        return api;
     };
 
 //------------------
