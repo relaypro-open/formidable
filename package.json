@@ -27,11 +27,13 @@
   "dependencies": {
     "collections": "~1.2.0",
     "glob": "~4.0.0",
-    "mercenary": "git+ssh://git@github.com:Phonebooth/mercenary.git#v0.1.0",
-    "q": "~1.0.0",
+    "mercenary": "git+ssh://git@github.com:Phonebooth/mercenary.git#v0.1.1",
     "q-io": "~1.11.0",
     "swig": "~1.4.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib-jshint": "~0.10.0"
+  },
   "private": true
 }

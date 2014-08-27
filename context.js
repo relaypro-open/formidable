@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./formidable').context;
+module.exports = require('./settings').load().context;

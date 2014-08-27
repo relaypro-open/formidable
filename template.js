@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./formidable').template;
+module.exports = require('./settings').load().template;
