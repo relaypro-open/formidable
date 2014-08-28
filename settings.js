@@ -68,11 +68,13 @@ var //---------------
         }
         return (
             cache[normalPath] ||
-            (cache[normalPath] = instantiate(settings || require(normalPath))));
+            instantiate(
+                normalPath,
+                settings || require(normalPath)));
     },
 
-    // Instantiate a formidable instance from settings.
-    instantiate = function(options) {
+    // Instantiate and cache a formidable instance from the given options.
+    instantiate = function(id, options) {
         var option = partial(get, options),
             log = require('./lib/log')(option),
             path = require('./lib/path')(option),
@@ -94,24 +96,22 @@ var //---------------
                     option: option
                 }));
 
-        // Load any plugins.
-        each(isArray(plugins) ? plugins : items(plugins), function(plugin) {
-            var mod = isArray(plugin) ? plugin[0] : plugin,
-                option = partial(get, (isArray(plugin) && plugin[1]) || {});
-
-            try {
-                require(mod)(api, option);
-            } catch (error) {
-                require(path.js.sync(mod))(api, option);
-            }
-        });
-
         // Debug?
         if (option('debug')) {
             q.longStackSupport = true;
         }
 
-        // Return the API.
+        // Cache the API so that it's immediately available for import with require('formidable').
+        cache[id] = api;
+
+        // Load any plugins.
+        each(isArray(plugins) ? plugins : items(plugins), function(plugin) {
+            path.js.require(
+                isArray(plugin) ? plugin[0] : plugin)(
+                    api,
+                    partial(get, (isArray(plugin) && plugin[1]) || {}));
+        });
+
         return api;
     };
 
