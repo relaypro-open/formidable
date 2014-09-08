@@ -8,12 +8,12 @@ var //---------------
     q = require('mercenary/promises').q,
     lang = require('mercenary/lang'),
     partial = lang.partial,
+    destructured = lang.destructured,
     has = lang.has,
     each = lang.each,
     extend = lang.extend,
     items = lang.items,
     get = lang.get,
-    isArray = lang.is.array,
     isUndefined = lang.is.undef,
 
     //----------------------
@@ -26,12 +26,26 @@ var //---------------
     // The default formidable settings module file path.
     defaultPath = process.env.FORMIDABLE_SETTINGS_MODULE,
 
-    // Reset the require() cache for formidable and for any js files resolved through path.js().
+    // Reset the require() cache for formidable and for any paths resolved with the path library.
     reset = function() {
-        delete require.cache[path.join(__dirname, 'formidable.js')];
-        if (defaultPath && cache[defaultPath]) {
-            cache[defaultPath].path.js.clear();
+        var cached = cache[defaultPath] && cache[defaultPath].path;
+
+        if (cached) {
+            cached.js.clear();
+            cached.template.clear();
         }
+        each([
+            'api',
+            'context',
+            'log',
+            'formidable',
+            'option',
+            'path',
+            'template',
+            'urls'
+        ], function(name) {
+            delete require.cache[path.join(__dirname, name + '.js')];
+        });
     },
 
     // Configure the default settings module file path.
@@ -79,40 +93,41 @@ var //---------------
             log = require('./lib/log')(option),
             path = require('./lib/path')(option),
             context = require('./lib/context')(option),
+            api = require('./lib/api')(option),
             middleware = require('./lib/middleware')(option),
             urls = require('./lib/urls')(option, path),
             template = require('./lib/templating/' + (option('templating') || 'swig'))(option, path, urls),
-            build = require('./lib/build')(option, log, path, context, middleware, urls, template),
             plugins = option('plugins') || [],
-            api = (
-                extend(build, {
-                    q: q,
-                    log: log,
-                    path: path,
-                    context: context,
-                    middleware: middleware,
-                    urls: urls,
-                    template: template,
-                    option: option
-                }));
+            build = (
+                extend(
+                    require('./lib/build')(option, log, path, context, middleware, urls, template),
+                    {
+                        q: q,
+                        log: log,
+                        path: path,
+                        context: context,
+                        api: api,
+                        middleware: middleware,
+                        urls: urls,
+                        template: template,
+                        option: option
+                    }));
 
         // Debug?
         if (option('debug')) {
             q.longStackSupport = true;
         }
 
-        // Cache the API so that it's immediately available for import with require('formidable').
-        cache[id] = api;
+        // Cache the build API so that it's immediately available for import
+        // with require('formidable').
+        cache[id] = build;
 
         // Load any plugins.
-        each(isArray(plugins) ? plugins : items(plugins), function(plugin) {
-            path.js.require(
-                isArray(plugin) ? plugin[0] : plugin)(
-                    api,
-                    partial(get, (isArray(plugin) && plugin[1]) || {}));
-        });
+        each(items(plugins), destructured(function(name, options) {
+            path.js.require(name)(build, partial(get, options));
+        }));
 
-        return api;
+        return build;
     };
 
 //------------------

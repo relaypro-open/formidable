@@ -1,6 +1,6 @@
 {
   "name": "formidable",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "Static site generator for dynamic content sources",
   "author": "Mike Kibbel, Bandwidth.com",
   "license": "MIT",
