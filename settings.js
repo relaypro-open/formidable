@@ -28,12 +28,12 @@ var //---------------
 
     // Reset the require() cache for formidable and for any paths resolved with the path library.
     reset = function() {
-        var path = cache[defaultPath] && cache[defaultPath].path;
+        var cached = cache[defaultPath] && cache[defaultPath].path;
 
         delete require.cache[path.join(__dirname, 'formidable.js')];
-        if (path) {
-            path.js.clear();
-            path.template.clear();
+        if (cached) {
+            cached.js.clear();
+            cached.template.clear();
         }
     },
 
