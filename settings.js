@@ -30,11 +30,22 @@ var //---------------
     reset = function() {
         var cached = cache[defaultPath] && cache[defaultPath].path;
 
-        delete require.cache[path.join(__dirname, 'formidable.js')];
         if (cached) {
             cached.js.clear();
             cached.template.clear();
         }
+        each([
+            'api',
+            'context',
+            'log',
+            'formidable',
+            'option',
+            'path',
+            'template',
+            'urls'
+        ], function(name) {
+            delete require.cache[path.join(__dirname, name + '.js')];
+        });
     },
 
     // Configure the default settings module file path.

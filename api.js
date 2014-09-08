@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./settings').load().api;
+module.exports = require('./formidable').api;
