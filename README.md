@@ -330,20 +330,19 @@ popular static site generator that you may have seen or even used before. Of cou
 __swig__ instead of __Assemble__'s default template engine,
 <a href="http://handlebarsjs.com/" target="_blank">__handlebars__</a>. We'll write a fancy
 `urls.js` module that reads hybrid YAML/__swig__ template files from anywhere under the
-source directory, excluding the `templates` directory where we'll keep our base templates,
+source directory, excluding the `templates` directory (where we'll keep our base templates),
 to automatically generate our site. We'll need to install
 <a href="https://www.npmjs.org/package/js-yaml" target="_blank">__js-yaml__</a> to pull off this
 little stunt:
 
 ```bash
 npm install js-yaml
-npm install lodash
 ```
 
 The basic idea is to find and read all of the template files, split the YAML code from
-the __swig__ template code, use the YAML code to generate context data and render the context data
-using the __swig__ template code. The files will be assigned URLs that reflect their structure in
-the source directory.
+the __swig__ template code, use the YAML code to generate context data, then finally render the
+context data using the __swig__ template code. The files will be assigned URLs that reflect
+their structure in the source directory.
 
 ```javascript
 // src/urls.js
