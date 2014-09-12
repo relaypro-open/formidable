@@ -102,7 +102,6 @@ var //---------------
                 extend(
                     require('./lib/build')(option, log, path, context, middleware, urls, template),
                     {
-                        q: q,
                         log: log,
                         path: path,
                         context: context,
