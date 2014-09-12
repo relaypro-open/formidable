@@ -55,8 +55,8 @@ module.exports = {
 ```
 
 Here, we've filled out the configuration that __formidable__ will use to generate a page for the
-`/` URL. It specifies the template that __swig__ should use to render the output and the context
-data that will be used by the template.
+`/` URL. It specifies the template file that __swig__ should use to render the output and the
+context data that will be used by the template.
 
 Now, we can write the template for the homepage:
 
@@ -98,7 +98,7 @@ Running `formidable()` will create the build directory with our generated homepa
 </html>
 ```
 
-Congratulations, you've built (or have imagined building) your first __formidable__ site.
+Congratulations, you've built (or have imagined building) your first __formidable__ site!
 You should note that the `{{ greeting }}` and `{{ subject }}` expressions in the homepage template
 have been replaced by their context values defined in the view. This merely hints at the underlying
 power of __swig__.
@@ -109,7 +109,7 @@ So far, we've had to create three different files to generate one HTML file. Fea
 URL-driven architecture will pay off immensely as you build up your site and maintain it over time.
 We'll continue building up by first coaxing more horsepower out of __swig__. It would be quite
 unpleasant to repeat the HTML skeleton structure in all of our site's templates, so we'll create
-a base template from which other templates will inherit:
+a base template from which our other templates will inherit:
 
 ```django
 {# src/pages/templates/base.html #}
@@ -160,7 +160,7 @@ module.exports = [
 
 Here, we haven't quite finished creating new URLs definitions. By using
 `formidable/urls.include()`, we've simply specified that URLs starting with `/articles` should be
-to another URLs module located in `articles/urls`:
+handled by another URLs module located in `articles/urls`:
 
 ```javascript
 // src/articles/urls.js
@@ -174,11 +174,11 @@ module.exports = [
 ];
 ```
 
-Now, we have a full URL for the articles index page, `/articles/`. Its view will be defined in the
+Now, we have the full URL for the articles index page, `/articles/`. Its view will be defined in the
 `articles/views/index` module. We also have a _parameterized URL_, `/articles/:slug/` that will
 have its `:slug` parameter filled out by the views defined in `articles/views/detail`. The articles
-index page isn't very interesting, as it is set up basically the same way as the homepage, so
-let's take a look at the views for the article detail pages first:
+index page isn't very interesting, as it is basically the same as the homepage, so let's take a
+look at the views for the article detail pages first:
 
 ```javascript
 // src/articles/views/detail.js
@@ -207,8 +207,8 @@ module.exports = [
 ```
 
 Here, we've exported two views. They each include an additional `params` property which in turn
-specify the `slug` value to use for `:slug` parameter in the URL. When we build the project with
-__formidable__, it will generate pages for the URLs `/articles/getting-started/` and
+specify the `slug` value to use for the `:slug` parameter in the URL. When we build the project
+with __formidable__, it will generate pages for the URLs `/articles/getting-started/` and
 `/articles/building-up/`, but first we need to create the article detail page template:
 
 ```django
@@ -226,7 +226,7 @@ __formidable__, it will generate pages for the URLs `/articles/getting-started/`
 At this point, we can't generate the site yet, because we haven't created the
 `articles/views/index` module, so let's comment out the `url()` call in `articles/urls` that
 references the missing module. Then, we can run `formidable()` in __node__ and check out our
-new articles. They should look like (but with somewhat different indentation):
+new articles. They should look like (with somewhat different indentation):
 
 ```html
 <!-- build/articles/getting-started/index.html -->
@@ -258,7 +258,7 @@ new articles. They should look like (but with somewhat different indentation):
 </html>
 ```
 
-Finally, let's flesh out the articles index page and include some links to our new articles.
+Now, let's flesh out the articles index page and include some links to our new articles.
 Start by uncommenting the `url()` call from above. Then, define the view:
 
 ```javascript
@@ -320,18 +320,18 @@ and __formidable__ will take care of the rest.
 
 Clearly, it's not very practical to define HTML content inside of JavaScript strings buried in
 module files, and that's certainly not the way __formidable__ was designed to be used. On
-the contrary &emdash; you have the full power of __node__ inside of your modules, which you can
+the contrary — you have the full power of __node__ inside of your modules, which you can
 use to load and process context data from nearly any source imaginable to dynamically generate
 static pages. With a little bit of __node__ programming, you can use __formidable__ to generate
-huge and complex static sites.
+large, complex static sites.
 
-As an example, we'll riff off of <a href="http://assemble.io/" target="_blank">__Assemble__</a>, a
-great static site generator that you may have seen or even used before. Of course, we'll be using
+As an example, we'll riff on <a href="http://assemble.io/" target="_blank">__Assemble__</a>, a
+popular static site generator that you may have seen or even used before. Of course, we'll be using
 __swig__ instead of __Assemble__'s default template engine,
 <a href="http://handlebarsjs.com/" target="_blank">__handlebars__</a>. We'll write a fancy
 `urls.js` module that reads hybrid YAML/__swig__ template files from anywhere under the
-source directory to automatically generate our site. We'll need to install
-<a href="https://www.npmjs.org/package/lodash" target="_blank">__lodash__</a> and
+source directory, excluding the `templates` directory where we'll keep our base templates,
+to automatically generate our site. We'll need to install
 <a href="https://www.npmjs.org/package/js-yaml" target="_blank">__js-yaml__</a> to pull off this
 little stunt:
 
@@ -340,17 +340,16 @@ npm install js-yaml
 npm install lodash
 ```
 
-The basic idea is that we'll find and read all of the template files, split the YAML data from
-the __swig__ template code, use the YAML to generate context data and render the context data
-with the __swig__ template code. The files will be assigned URLs that reflect their structure in
+The basic idea is to find and read all of the template files, split the YAML code from
+the __swig__ template code, use the YAML code to generate context data and render the context data
+using the __swig__ template code. The files will be assigned URLs that reflect their structure in
 the source directory.
 
 ```javascript
 // src/urls.js
 'use strict';
 
-var _ = require('lodash'),
-    path = require('path'),
+var path = require('path'),
     yaml = require('js-yaml'),
     formidable = require('formidable'),
     swig = require('formidable/template').engine,
@@ -369,7 +368,10 @@ module.exports = [
         (glob('**/*.html', {cwd: root})
         .then(function(urls) {
             return q.all(
-                urls.map(function(url) {
+                urls.filter(function(url) {
+                    return !/^templates\/.*$/.match(url);
+                })
+                .map(function(url) {
                     return (
                         fs.read(path.join(root, url))
                         .then(function(code) {
@@ -493,21 +495,18 @@ articles:
 {% endblock %}
 ```
 
-Finally, we'll need to tweak __formidable__'s config slightly when we run it in __node__ to
-tell it where to search for template filenames encountered in `{% extends %}` tags:
+Finally, we can run `formidable()` from __node__ to build the site:
 
 ```javascript
-var formidable = require('formidable/settings').configure('hello-world').load({
-        templates: '**/*.html'
-    });
+var formidable = require('formidable/settings').configure('hello-world').load({});
 formidable();
 ```
 
-Ironically, __formidable__ was built to free the generated site's URL structure from the source
-file structure and to provide a way to generate pages dynamically without requiring a one-to-one
-mapping to source files. The purpose of this example is to demonstrate in fifty lines of code that
-__formidable__'s capabilites are a superset of static site generators with such strict and
-inflexible architectures.
+Ironically, __formidable__ was built to free a site's URL structure from its source file structure
+and to provide a way to generate pages dynamically without requiring a one-to-one mapping to
+source files. This example imposes exactly those limitations, but its purpose is to demonstrate in
+fifty lines of code that __formidable__'s capabilites are a superset of static site generators with
+such strict and inflexible architectures.
 
 ### What next?
 
