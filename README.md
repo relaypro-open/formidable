@@ -410,7 +410,7 @@ promise whose results are processed through a series of transformations using th
 <a href="https://www.npmjs.org/package/q-io" target="_blank">__q-io__</a>`/fs` utilties along
 the way. The promise finally resolves into an array of view objects that specify `params.url` based
 on the file path from __glob__, `context` from the parsed YAML data in the loaded file and a
-`template` function that uses __swig__ to render the parsed template from loaded file the using the
+`template` function that uses __swig__ to render the parsed template from the loaded file using the
 context data.
 
 Now, we can rebuild the site from the first example. Let's start with the base template:
