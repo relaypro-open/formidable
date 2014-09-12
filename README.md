@@ -367,34 +367,35 @@ module.exports = [
         (glob('**/*.html', {cwd: root})
         .then(function(urls) {
             return q.all(
-                urls.filter(function(url) {
-                    return !/^templates\/.*$/.match(url);
-                })
-                .map(function(url) {
-                    return (
-                        fs.read(path.join(root, url))
-                        .then(function(code) {
-                            var parts = (
-                                    code
-                                        .split(/^----*\s*$/gm)
-                                        .filter(function(part) {
-                                            return !!part.trim();
-                                        })),
-                                data = yaml.load(parts[0]),
-                                template = parts[1];
-
-                            return {
-                                params: {url: url},
-                                context: context(data),
-                                template: function(context) {
-                                    return swig.render(template, {
-                                        filename: url,
-                                        locals: context
-                                    });
-                                }
-                            };
-                        }));
-                }));
+                urls
+                    .filter(function(url) {
+                        return !/^templates\/.*$/.match(url);
+                    })
+                    .map(function(url) {
+                        return (
+                            fs.read(path.join(root, url))
+                            .then(function(code) {
+                                var parts = (
+                                        code
+                                            .split(/^----*\s*$/gm)
+                                            .filter(function(part) {
+                                                return !!part.trim();
+                                            })),
+                                    data = yaml.load(parts[0]),
+                                    template = parts[1];
+    
+                                return {
+                                    params: {url: url},
+                                    context: context(data),
+                                    template: function(context) {
+                                        return swig.render(template, {
+                                            filename: url,
+                                            locals: context
+                                        });
+                                    }
+                                };
+                            }));
+                    }));
         })),
         'page')
 ];
