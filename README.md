@@ -401,21 +401,22 @@ module.exports = [
 ];
 ```
 
-Here, we've demonstrated several other __formidable__ capabilities. To start, we've returned a
-promise for the second argument to `url()`. The `glob` utility, built on top of the awesome
+Here, we start to see some more of __formidable__'s capabilities. Rather than referencing
+a views module by string name, we've specified the views object inline as a promise. The
+`glob` utility, built on top of the awesome
 <a href="https://www.npmjs.org/package/glob" target="_blank">__glob__</a> library, returns a
-promise whose results are passed through a chain of more promises using the
+promise whose results are processed through a series of transformations using the
 <a href="https://www.npmjs.org/package/q" target="_blank">__q__</a> and
 <a href="https://www.npmjs.org/package/q-io" target="_blank">__q-io__</a>`/fs` utilties along
 the way. The promise finally resolves into an array of view objects that specify `params.url` based
 on the file path from __glob__, `context` from the parsed YAML data in the loaded file and a
-`template` function that uses __swig__ to render the context into the parsed template from the
-loaded file.
+`template` function that uses __swig__ to render the parsed template from loaded file the using the
+context data.
 
 Now, we can rebuild the site from the first example. Let's start with the base template:
 
 ```django
-{# src/base.html #}
+{# src/templates/base.html #}
 <!DOCTYPE html>
 <html lang="en-us">
     <head>
@@ -468,7 +469,7 @@ title: Building Up
 {% endblock %}
 ```
 
-Finally, article index page:
+And of course, the article index page:
 
 ```django
 # src/articles/index.html
