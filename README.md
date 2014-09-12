@@ -506,8 +506,9 @@ formidable();
 Ironically, __formidable__ was built to free a site's URL structure from its source file structure
 and to provide a way to generate pages dynamically without requiring a one-to-one mapping to
 source files. This example imposes exactly those limitations, but its purpose is to demonstrate in
-fifty lines of code that __formidable__'s capabilites are a superset of static site generators with
-such strict and inflexible architectures.
+fifty lines of code that __formidable__ operates at a higher level of abstraction. In other words,
+its capabilites are a superset of static site generators with such strict and
+inflexible architectures.
 
 ### What next?
 
