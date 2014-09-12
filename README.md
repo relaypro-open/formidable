@@ -385,7 +385,12 @@ module.exports = [
                                     data = parts[1] ? yaml.load(parts[0]) : {};
     
                                 return {
-                                    params: {url: url},
+                                    params: {
+                                        url: (
+                                            path.basename(url) === 'index.html' ?
+                                                path.dirname(url) + path.sep :
+                                                url)
+                                    },
                                     context: context(data),
                                     template: function(context) {
                                         return swig.render(template, {
@@ -476,9 +481,9 @@ And of course, the article index page:
 title: Latest Articles
 articles:
 - title: Getting Started
-  url: '/articles/getting-started/'
+  url: 'articles/getting-started/'
 - title: Building Up
-  url: '/articles/building-up/'
+  url: 'articles/building-up/'
 ---
 {% extends 'base.html' %}
 
