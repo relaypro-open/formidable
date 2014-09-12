@@ -369,7 +369,7 @@ module.exports = [
             return q.all(
                 urls
                     .filter(function(url) {
-                        return !/^templates\/.*$/.match(url);
+                        return !/^templates\/.*$/.test(url);
                     })
                     .map(function(url) {
                         return (
@@ -381,8 +381,8 @@ module.exports = [
                                             .filter(function(part) {
                                                 return !!part.trim();
                                             })),
-                                    data = yaml.load(parts[0]),
-                                    template = parts[1];
+                                    template = (parts[1] || parts[0] || '').trim(),
+                                    data = parts[1] ? yaml.load(parts[0]) : {};
     
                                 return {
                                     params: {url: url},
