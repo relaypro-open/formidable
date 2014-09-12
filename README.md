@@ -49,7 +49,7 @@ module.exports = {
     template: 'pages/home.html',
     context: context({
         greeting: 'Hello',
-        subject: 'World'
+        name: 'World'
     })
 };
 ```
@@ -69,7 +69,7 @@ Now, we can write the template for the homepage:
         <title>Welcome</title>
     </head>
     <body>
-        <h1>{{ greeeting }}, {{ subject }}!</h1>
+        <h1>{{ greeeting }}, {{ name }}!</h1>
     </body>
 </html>
 ```
@@ -99,7 +99,7 @@ Running `formidable()` will create the build directory with our generated homepa
 ```
 
 Congratulations, you've built (or have imagined building) your first __formidable__ site!
-You should note that the `{{ greeting }}` and `{{ subject }}` expressions in the homepage template
+You should note that the `{{ greeting }}` and `{{ name }}` expressions in the homepage template
 have been replaced by their context values defined in the view. This merely hints at the underlying
 power of __swig__.
 
@@ -132,7 +132,7 @@ Now, we can change our homepage template to:
 {% extends 'base.html' %}
 
 {% block content %}
-    {{ greeting }}, {{ subject }}!
+    {{ greeting }}, {{ name }}!
 {% endblock %}
 ```
 
@@ -439,12 +439,12 @@ Now, we can build the homepage:
 ```django
 # src/index.html
 greeting: Hello
-subject: World
+name: World
 ---
 {% extends 'base.html' %}
 
 {% block content %}
-    {{ greeting }}, {{ subject }}!
+    {{ greeting }}, {{ name }}!
 {% endblock %}
 ```
 
