@@ -2,7 +2,10 @@
   "name": "formidable",
   "version": "0.2.3",
   "description": "Static site generator for dynamic content sources",
-  "author": "Mike Kibbel, Bandwidth.com",
+  "author": "Republic Wireless",
+  "contributors": [
+    "Mike Kibbel (https://github.com/skibblenybbles)"
+  ],
   "license": "MIT",
   "main": "formidable.js",
   "scripts": {
