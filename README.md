@@ -2,8 +2,8 @@ formidable
 ==========
 
 An asynchronous static site generator for Node.js built on the
-<a href="http://paularmstrong.github.io/swig/" target="_blank">__swig__</a> templating engine and
-<a href="https://github.com/kriskowal/q" target="_blank">__q__ promises</a>. With a simple, yet
+<a href="http://paularmstrong.github.io/swig/" target="_blank">__Swig__</a> templating engine and
+<a href="https://github.com/kriskowal/q" target="_blank">__Q__ promises</a>. With a simple, yet
 powerful MVT design inspired by Python's
 <a href="https://www.djangoproject.com/" target="_blank">__Django__</a> web framework,
 __formidable__ consistently handles site generation from both static and dynamic content sources.
@@ -13,7 +13,7 @@ __formidable__ consistently handles site generation from both static and dynamic
 You can install __formidable__ with npm:
 
 ```bash
-npm install formidable
+npm install rw-formidable
 ```
 
 Your project can be organized with almost any kind of directory structure, but you must have
@@ -29,7 +29,7 @@ source directory. It should export an array of URL patterns defined with `formid
 // src/urls.js
 'use strict';
 
-var url = require('formidable/urls').url;
+var url = require('rw-formidable/urls').url;
 
 module.exports = [
     url('/', 'pages/views/home', 'pages:home')
@@ -43,7 +43,7 @@ control the generated output for the `/` URL. Let's flesh out the view definitio
 // src/pages/views/home.js
 'use strict';
 
-var context = require('formidable/context');
+var context = require('rw-formidable/context');
 
 module.exports = {
     template: 'pages/home.html',
@@ -78,7 +78,7 @@ Finally, we can generate our site by running a little script in __node__ from th
 the project:
 
 ```javascript
-var formidable = require('formidable/settings').configure('hello-world').load({});
+var formidable = require('rw-formidable/settings').configure('hello-world').load({});
 formidable();
 ```
 
@@ -148,7 +148,7 @@ our `urls.js` file:
 // src/urls.js
 'use strict';
 
-var urls = require('formidable/urls'),
+var urls = require('rw-formidable/urls'),
     url = urls.url,
     include = urls.include;
 
@@ -166,7 +166,7 @@ handled by another URLs module located in `articles/urls`:
 // src/articles/urls.js
 'use strict';
 
-var url = require('formidable/urls').url;
+var url = require('rw-formidable/urls').url;
 
 module.exports = [
     url('/', 'articles/views/index', 'articles:index'),
@@ -184,7 +184,7 @@ look at the views for the article detail pages first:
 // src/articles/views/detail.js
 'use strict';
 
-var context = require('formidable/context');
+var context = require('rw-formidable/context');
 
 module.exports = [
     {
@@ -265,7 +265,7 @@ Start by uncommenting the `url()` call from above. Then, define the view:
 // src/articles/views/index.js
 'use strict';
 
-var context = require('formidable/context');
+var context = require('rw-formidable/context');
 
 module.exports = {
     template: 'articles/index.html',
@@ -350,11 +350,11 @@ their structure in the source directory.
 
 var path = require('path'),
     yaml = require('js-yaml'),
-    formidable = require('formidable'),
-    swig = require('formidable/template').engine,
-    url = require('formidable/urls').url,
-    context = require('formidable/context'),
-    utils = require('formidable/utils'),
+    formidable = require('rw-formidable'),
+    swig = require('rw-formidable/template').engine,
+    url = require('rw-formidable/urls').url,
+    context = require('rw-formidable/context'),
+    utils = require('rw-formidable/utils'),
     fs = utils.fs,
     glob = utils.glob,
     q = utils.q,
@@ -383,7 +383,7 @@ module.exports = [
                                             })),
                                     template = (parts[1] || parts[0] || '').trim(),
                                     data = parts[1] ? yaml.load(parts[0]) : {};
-    
+
                                 return {
                                     params: {
                                         url: (
@@ -411,8 +411,8 @@ a views module by string name, we've specified the views object inline as a prom
 `glob` utility, built on top of the awesome
 <a href="https://www.npmjs.org/package/glob" target="_blank">__glob__</a> library, returns a
 promise whose results are processed through a series of transformations using the
-<a href="https://www.npmjs.org/package/q" target="_blank">__q__</a> and
-<a href="https://www.npmjs.org/package/q-io" target="_blank">__q-io__</a>`/fs` utilties along
+<a href="https://www.npmjs.org/package/q" target="_blank">__Q__</a> and
+<a href="https://www.npmjs.org/package/q-io" target="_blank">__Q-IO__</a>`/fs` utilties along
 the way. The promise finally resolves into an array of view objects that specify `params.url` based
 on the file path from __glob__, `context` from the parsed YAML data in the loaded file and a
 `template` function that uses __swig__ to render the parsed template from the loaded file using the
@@ -504,7 +504,7 @@ articles:
 Finally, we can run `formidable()` from __node__ to build the site:
 
 ```javascript
-var formidable = require('formidable/settings').configure('hello-world').load({});
+var formidable = require('rw-formidable/settings').configure('hello-world').load({});
 formidable();
 ```
 
@@ -515,9 +515,94 @@ fifty lines of code that __formidable__ operates at a higher level of abstractio
 its capabilites are a superset of static site generators with such strict and
 inflexible architectures.
 
-### What next?
+### How does it work?
 
-* An explanation of how modules are found, since they're not `require()`able
-* Why templates in the first example have such long paths, i.e. suggested project layout
-* Reference
-* Links to resources (swig, q, q-io/fs, glob, etc.)
+You may be wondering how __formidable__ finds your JavaScript modules. Normally, you cannot call
+`require()` to load a local module in your project unless you use explicit dotted paths, e.g.
+`require('./articles/views/detail')`. However, __formidable__ allows you to avoid the dotted path
+syntax by building a full path to your modules with respect to the source directory, `src`
+by default.
+
+You may also be wondering how it finds your template files during the build process. By default,
+__formidable__ searches for any directories under your source directory with the name
+`templates`. As an example, we tell __formidable__ to use the `articles/detail.html` template
+in the `articles/views/detail` views module. It then finds the template in
+`src/articles/templates/articles/detail.html`, i.e. `articles/detail.html` with respect to a
+directory named `templates`, namely `src/articles/templates`.
+
+The reason we've nested yet another `articles` directory under `src/articles/templates` is for
+namespacing. Had we only named the template `detail.html` and not `articles/detail.html`, we
+wouldn't be able to use `detail.html` for any other template in our project (technically we could,
+but with unpredictable results). Alternatively, we could have named our template file
+`articles-detail.html` or `article-detail.html` and avoided the intermeditate `articles` directory.
+The strategy you choose for namespacing is simply a matter of taste and your own aesthetics. For
+best results, pick a style and stick to it.
+
+### Changing settings
+
+You may not want to use `src` as the name for your source files and `build` as the name for the
+generated site. You also may want to configure __formidable__ to find templates under a different
+file path pattern. To change these settings, you'll need to add some properties to the object
+passed to `load()` before you run `formidable()`:
+
+```javascript
+var formidable = require('rw-formidable/settings').configure('hello-world').load({
+        // The source files.
+        root: 'src',
+        // The build files.
+        build: 'build',
+        // A glob pattern or array of glob patterns for the template directories that
+        // formiable will search to find our template files.
+        templates: '**/templates'
+    });
+formidable();
+```
+
+Here, we've created and run a __formidable__ instance with settings that happen to be the same
+as the defaults. Several other settings are available but are currently undocumented. Please
+browse the source code if you want to discover more possibilities.
+
+The way in which we've run `formidable()` has so far been a bit awkward. The `'hello-world'`
+argument that we've been passing to `configure()` seems pointless, but actually it can instead
+specify a `require()`-able path to a settings module that exports the settings object we would
+normally pass to `load()`. To repeat the above example using this feature, we would create a
+`settings.js` file at the root of the project, i.e. in the parent directory of `src` and `build`:
+
+```javascript
+// settings.js
+'use strict';
+
+module.exports = {
+    root: 'src',
+    build: 'build',
+    templates: '**/templates'
+};
+```
+
+Now we can run `formidable()` like so (by running __node__ from the root of the project):
+
+```javascript
+require('rw-formidable/settings').configure('./settings');
+require('rw-formidable')();
+```
+
+This is still not ideal. Out of the box, __formidable__ does not provide a command-line
+interface, but rather assumes that you'll be using a build tool like
+<a href="http://gruntjs.com/" target="_blank">__Grunt__</a> that hides away most of these details.
+If You want to use __Grunt__, check out
+<a href="https://github.com/republicwireless-open/grunt-formidable" target="_blank">__grunt-formidable__</a>,
+__formidable__'s official __Grunt__ plugin for details.
+
+### Learn more
+
+We've tried to design __formidable__'s core features to be simple enough for you to start
+building websites within mintues. However, the underlying tools like __swig__ and __Q__ may be
+unfamiliar. To most effectively use __formidable__, you'll need a decent understanding of these
+tools:
+
+* <a href="http://paularmstrong.github.io/swig/" target="_blank">__Swig__</a>, the templating engine
+* <a href="http://documentup.com/kriskowal/q/" target="_blank">__Q__</a>, the promise library
+* <a href="http://documentup.com/kriskowal/q-io" target="_blank">__Q-IO__</a>, the file system and
+    HTTP library
+* <a href="https://github.com/isaacs/node-glob" target="_blank">__glob__</a>, the file
+    searching library
