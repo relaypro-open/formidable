@@ -5,8 +5,8 @@ var //---------------
     //---------------
 
     path = require('path'),
-    q = require('mercenary/promises').q,
-    lang = require('mercenary/lang'),
+    q = require('rw-mercenary/promises').q,
+    lang = require('rw-mercenary/lang'),
     partial = lang.partial,
     destructured = lang.destructured,
     has = lang.has,
