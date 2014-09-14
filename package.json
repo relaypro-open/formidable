@@ -1,6 +1,6 @@
 {
   "name": "rw-formidable",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Static site generator for dynamic content sources",
   "author": "Republic Wireless",
   "contributors": [
@@ -30,13 +30,12 @@
   "dependencies": {
     "collections": "~1.2.0",
     "glob": "~4.0.0",
-    "mercenary": "git+ssh://git@github.com:Phonebooth/mercenary.git#v0.1.1",
+    "rw-mercenary": "0.2.0",
     "q-io": "~1.11.0",
     "swig": "~1.4.0"
   },
   "devDependencies": {
     "grunt": "~0.4.0",
     "grunt-contrib-jshint": "~0.10.0"
-  },
-  "private": true
+  }
 }
