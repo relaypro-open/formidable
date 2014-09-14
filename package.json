@@ -1,6 +1,6 @@
 {
   "name": "rw-formidable",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Static site generator for dynamic content sources",
   "author": "Republic Wireless",
   "contributors": [
@@ -13,11 +13,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/Phonebooth/formidable.git"
+    "url": "git://github.com/republicwireless-open/formidable.git"
   },
-  "homepage": "https://github.com/Phonebooth/formidable",
+  "homepage": "https://github.com/republicwireless-open/formidable",
   "bugs": {
-    "url": "https://github.com/Phonebooth/formidable/issues"
+    "url": "https://github.com/republicwireless-open/formidable/issues"
   },
   "keywords": [
     "static",
