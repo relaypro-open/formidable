@@ -74,15 +74,13 @@ Now, we can write the template for the homepage:
 </html>
 ```
 
-Finally, we can generate our site by running a little script in __node__ from the root of
-the project:
+Finally, we can generate our site by running __node__ from the root of the project and entering:
 
 ```javascript
-var formidable = require('rw-formidable/settings').configure('hello-world').load({});
-formidable();
+require('rw-formidable/settings').configure('example-1').load({})();
 ```
 
-Running `formidable()` will create the build directory with our generated homepage:
+This will create the build directory with our generated homepage:
 
 ```html
 <!-- buid/index.html -->
@@ -108,7 +106,7 @@ power of __swig__.
 So far, we've had to create three different files to generate one HTML file. Fear not, the
 URL-driven architecture will pay off immensely as you build up your site and maintain it over time.
 We'll continue building up by first coaxing more horsepower out of __swig__. It would be quite
-unpleasant to repeat the HTML skeleton structure in all of our site's templates, so we'll create
+unpleasant to repeat the HTML skeleton structure in all of our templates, so we'll create
 a base template from which our other templates will inherit:
 
 ```django
@@ -196,7 +194,7 @@ module.exports = [
         })
     },
     {
-        template: 'aticles/detail.html',
+        template: 'articles/detail.html',
         params: {slug: 'building-up'},
         context: context({
             title: 'Building Up',
@@ -223,43 +221,8 @@ with __formidable__, it will generate pages for the URLs `/articles/getting-star
 {% endblock %}
 ```
 
-At this point, we can't generate the site yet, because we haven't created the
-`articles/views/index` module, so let's comment out the `url()` call in `articles/urls` that
-references the missing module. Then, we can run `formidable()` in __node__ and check out our
-new articles. They should look like (with somewhat different indentation):
-
-```html
-<!-- build/articles/getting-started/index.html -->
-<!DOCTYPE html>
-<html lang="en-us">
-    <head>
-        <meta charset="UTF-8">
-        <title>Getting Started</title>
-    </head>
-    <body>
-        <h1>Getting Started</h1>
-        <p>You can install formidable with npm...</p>
-    </body>
-</html>
-```
-
-```html
-<!-- build/articles/building-up/index.html -->
-<!DOCTYPE html>
-<html lang="en-us">
-    <head>
-        <meta charset="UTF-8">
-        <title>Building Up</title>
-    </head>
-    <body>
-        <h1>Building Up</h1>
-        <p>So far, we've had to create three different files...</p>
-    </body>
-</html>
-```
-
-Now, let's flesh out the articles index page and include some links to our new articles.
-Start by uncommenting the `url()` call from above. Then, define the view:
+Now, let's flesh out the articles index page and include some links to our new articles. We'll
+define the view:
 
 ```javascript
 // src/articles/views/index.js
@@ -316,6 +279,12 @@ all of the potentially broken links. By using the `{% url %}` tag, we can simply
 URLs definition in the root `urls.js` module from `url('/articles', ...)` to `url('/posts', ...)`,
 and __formidable__ will take care of the rest.
 
+We can now generate our site by running __node__ from the root of the project and entering:
+
+```javascript
+require('rw-formidable/settings').configure('example-2').load({})();
+```
+
 ### Growing up
 
 Clearly, it's not very practical to define HTML content inside of JavaScript strings buried in
@@ -329,7 +298,7 @@ As an example, we'll riff on <a href="http://assemble.io/" target="_blank">__Ass
 popular static site generator that you may have seen or even used before. Of course, we'll be using
 __swig__ instead of __Assemble__'s default template engine,
 <a href="http://handlebarsjs.com/" target="_blank">__handlebars__</a>. We'll write a fancy
-`urls.js` module that reads hybrid YAML/__swig__ template files from anywhere under the
+`views/page.js` module that reads hybrid YAML/__swig__ template files from anywhere under the
 source directory, excluding the `templates` directory (where we'll keep our base templates),
 to automatically generate our site. We'll need to install
 <a href="https://www.npmjs.org/package/js-yaml" target="_blank">__js-yaml__</a> to pull off this
@@ -342,17 +311,31 @@ npm install js-yaml
 The basic idea is to find and read all of the template files, split the YAML code from
 the __swig__ template code, use the YAML code to generate context data, then finally render the
 context data using the __swig__ template code. The files will be assigned URLs that reflect
-their structure in the source directory.
+their structure in the source directory. Here's the `urls.js` module:
 
 ```javascript
 // src/urls.js
+'use strict';
+
+var urls = require('rw-formidable/urls'),
+    url = urls.url,
+    include = urls.include;
+
+module.exports = [
+    url('/:url', 'views/page', 'page')
+];
+```
+
+And here's the `views/page.js` module:
+
+```javascript
+// src/views/page.js
 'use strict';
 
 var path = require('path'),
     yaml = require('js-yaml'),
     formidable = require('rw-formidable'),
     swig = require('rw-formidable/template').engine,
-    url = require('rw-formidable/urls').url,
     context = require('rw-formidable/context'),
     utils = require('rw-formidable/utils'),
     fs = utils.fs,
@@ -361,56 +344,50 @@ var path = require('path'),
     // The source file path.
     root = path.resolve(formidable.path.root());
 
-module.exports = [
-    url(
-        '/:url',
-        (glob('**/*.html', {cwd: root})
-        .then(function(urls) {
-            return q.all(
-                urls
-                    .filter(function(url) {
-                        return !/^templates\/.*$/.test(url);
-                    })
-                    .map(function(url) {
-                        return (
-                            fs.read(path.join(root, url))
-                            .then(function(code) {
-                                var parts = (
-                                        code
-                                            .split(/^----*\s*$/gm)
-                                            .filter(function(part) {
-                                                return !!part.trim();
-                                            })),
-                                    template = (parts[1] || parts[0] || '').trim(),
-                                    data = parts[1] ? yaml.load(parts[0]) : {};
+module.exports = (
+    (glob('**/*.html', {cwd: root})
+    .then(function(urls) {
+        return q.all(
+            urls
+                .filter(function(url) {
+                    return !/^templates\/.*$/.test(url);
+                })
+                .map(function(url) {
+                    return (
+                        fs.read(path.join(root, url))
+                        .then(function(code) {
+                            var parts = (
+                                    code
+                                        .split(/^----*\s*$/gm)
+                                        .filter(function(part) {
+                                            return !!part.trim();
+                                        })),
+                                template = (parts[1] || parts[0] || '').trim(),
+                                data = parts[1] ? yaml.load(parts[0]) : {};
 
-                                return {
-                                    params: {
-                                        url: (
-                                            path.basename(url) === 'index.html' ?
-                                                path.dirname(url) + path.sep :
-                                                url)
-                                    },
-                                    context: context(data),
-                                    template: function(context) {
-                                        return swig.render(template, {
-                                            filename: url,
-                                            locals: context
-                                        });
-                                    }
-                                };
-                            }));
-                    }));
-        })),
-        'page')
-];
+                            return {
+                                params: {
+                                    url: (
+                                        path.basename(url) === 'index.html' ?
+                                            path.dirname(url) + path.sep :
+                                            url)
+                                },
+                                context: context(data),
+                                template: function(context) {
+                                    return swig.render(template, {
+                                        filename: url,
+                                        locals: context
+                                    });
+                                }
+                            };
+                        }));
+                }));
+    })));
 ```
 
-Here, we start to see some more of __formidable__'s capabilities. Rather than referencing
-a views module by string name, we've specified the views object inline as a promise. The
-`glob` utility, built on top of the awesome
-<a href="https://www.npmjs.org/package/glob" target="_blank">__glob__</a> library, returns a
-promise whose results are processed through a series of transformations using the
+Here, we start to see some more of __formidable__'s capabilities. The `glob` utility, built on top
+of the awesome <a href="https://www.npmjs.org/package/glob" target="_blank">__glob__</a> library,
+returns a promise whose results are processed through a series of transformations using the
 <a href="https://www.npmjs.org/package/q" target="_blank">__Q__</a> and
 <a href="https://www.npmjs.org/package/q-io" target="_blank">__Q-IO__</a>`/fs` utilties along
 the way. The promise finally resolves into an array of view objects that specify `params.url` based
@@ -501,11 +478,10 @@ articles:
 {% endblock %}
 ```
 
-Finally, we can run `formidable()` from __node__ to build the site:
+Again, we can build our site by running __node__ from the root of the project and entering:
 
 ```javascript
-var formidable = require('rw-formidable/settings').configure('hello-world').load({});
-formidable();
+require('rw-formidable/settings').configure('example-3').load({})();
 ```
 
 Ironically, __formidable__ was built to free a site's URL structure from its source file structure
@@ -543,27 +519,26 @@ best results, pick a style and stick to it.
 You may not want to use `src` as the name for your source files and `build` as the name for the
 generated site. You also may want to configure __formidable__ to find templates under a different
 file path pattern. To change these settings, you'll need to add some properties to the object
-passed to `load()` before you run `formidable()`:
+passed to `load()` before you run the resulting function:
 
 ```javascript
-var formidable = require('rw-formidable/settings').configure('hello-world').load({
-        // The source files.
-        root: 'src',
-        // The build files.
-        build: 'build',
-        // A glob pattern or array of glob patterns for the template directories that
-        // formiable will search to find our template files.
-        templates: '**/templates'
-    });
-formidable();
+require('rw-formidable/settings').configure('your-project').load({
+    // The source files.
+    root: 'src',
+    // The build files.
+    build: 'build',
+    // A glob pattern or array of glob patterns for the template directories that
+    // formidable will search to find our template files.
+    templates: '**/templates'
+})();
 ```
 
 Here, we've created and run a __formidable__ instance with settings that happen to be the same
 as the defaults. Several other settings are available but are currently undocumented. Please
 browse the source code if you want to discover more possibilities.
 
-The way in which we've run `formidable()` has so far been a bit awkward. The `'hello-world'`
-argument that we've been passing to `configure()` seems pointless, but actually it can instead
+The way in which we've run the build has so far been a bit awkward. The `'example-N'`
+argument that we've been passing to `configure()` seems pointless. It can be used instead to
 specify a `require()`-able path to a settings module that exports the settings object we would
 normally pass to `load()`. To repeat the above example using this feature, we would create a
 `settings.js` file at the root of the project, i.e. in the parent directory of `src` and `build`:
@@ -579,14 +554,14 @@ module.exports = {
 };
 ```
 
-Now we can run `formidable()` like so (by running __node__ from the root of the project):
+Now we can run the build like so (by running __node__ from the root of the project):
 
 ```javascript
 require('rw-formidable/settings').configure('./settings');
 require('rw-formidable')();
 ```
 
-This is still not ideal. Out of the box, __formidable__ does not provide a command-line
+This is better, but still not ideal. Out of the box, __formidable__ does not provide a command-line
 interface, but rather assumes that you'll be using a build tool like
 <a href="http://gruntjs.com/" target="_blank">__Grunt__</a> that hides away most of these details.
 If You want to use __Grunt__, check out
