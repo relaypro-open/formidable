@@ -69,7 +69,7 @@ Now, we can write the template for the homepage:
         <title>Welcome</title>
     </head>
     <body>
-        <h1>{{ greeeting }}, {{ name }}!</h1>
+        <h1>{{ greeting }}, {{ name }}!</h1>
     </body>
 </html>
 ```
